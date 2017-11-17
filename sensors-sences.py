@@ -16,7 +16,7 @@ import drivers.grove_oled #import *
 import random as rd
 
 
-# In[15]:
+# In[16]:
 
 noiseTreshold = 700
 distanceTreshold0 = 10
@@ -32,18 +32,12 @@ Devices = {
     'ultrasonic_ranger': 8
 }
 
-grovepi.pinMode(Devices['led_red'],"OUTPUT")
-grovepi.pinMode(Devices['led_green'],"OUTPUT")
-
 LatestReadings = {
     'humidity': 0.0,
     'temperature': 0.0,
     'sound': 0.0,
     'distance': 0.0
 }
-
-
-# In[1]:
 
 sentences_sound = [
         "I've heard a noise!", 
@@ -63,6 +57,12 @@ sentences_distance1 = [
         'Someone is standing in front of me.',
         'Hello?'
         ]
+
+
+# In[1]:
+
+grovepi.pinMode(Devices['led_red'],"OUTPUT")
+grovepi.pinMode(Devices['led_green'],"OUTPUT")
 
 
 # In[12]:
@@ -206,54 +206,61 @@ lcd.processfunction()
 # In[11]:
 
 def mainEvent():    
-    while True:
-        
-        lcdTriggered = False
-        
-        # timebreak
-        time.sleep(0.1)
-        
-        # reading from sensors and changing LEDS accordingly        
-        # -sound
-        sound = grovepi.analogRead(Devices['sound_sensor'])
-        grovepi.analogWrite(Devices['led_green'],sound)
-        
-        # -distance
-        distance = grovepi.ultrasonicRead(Devices['ultrasonic_ranger'])
-        if distance < distanceTreshold0:
-            grovepi.analogWrite(Devices['led_red'],1000)
-        else:            
-            grovepi.analogWrite(Devices['led_red'],0)
-            
-        # -humidity & temperature
-        [temp, hum] = grovepi.dht(Devices['dht_sensor'], 0)
-
-        
-        # write to CSV                
-        #print('%d         ' % s, end='\r', flush=True)
-        
     
-        # message on LCD ?
-        
-        if sound > noiseTreshold:             
-            lcd.newMessage(sentences_sound[rd.randint(0,len(sentences_sound)-1)], duration=2.0, colour=[10,10,200])
-            lcdTriggered = True
-        
-        if distance < distanceTreshold0:
-            lcd.newMessage(sentences_distance[rd.randint(0,len(sentences_distance0)-1)], duration=2.0, colour=[10,200,10])
-            lcdTriggered = True
-        elif distance < distanceTreshold1:
-            lcd.newMessage(sentences_distance[rd.randint(0,len(sentences_distance1)-1)], duration=2.0, colour=[10,200,10])
-            lcdTriggered = True
-            
-                
-        if lcdTriggered:
+    try:
+        while True:
             lcdTriggered = False
-            grovepi.analogWrite(Devices['led_red'],1000)
-            grovepi.analogWrite(Devices['led_green'],1000)
+
+            # timebreak
+            time.sleep(0.1)
+
+            # reading from sensors and changing LEDS accordingly        
+            # -sound
+            sound = grovepi.analogRead(Devices['sound_sensor'])
+            grovepi.analogWrite(Devices['led_green'],sound)
+
+            # -distance
+            distance = grovepi.ultrasonicRead(Devices['ultrasonic_ranger'])
+            if distance < distanceTreshold0:
+                grovepi.analogWrite(Devices['led_red'],1000)
+            else:            
+                grovepi.analogWrite(Devices['led_red'],0)
+
+            # -humidity & temperature
+            [temp, hum] = grovepi.dht(Devices['dht_sensor'], 0)
+
+
+            # write to CSV                
+            #print('%d         ' % s, end='\r', flush=True)
+
+
+            # message on LCD ?
+
+            if sound > noiseTreshold:             
+                lcd.newMessage(sentences_sound[rd.randint(0,len(sentences_sound)-1)], duration=2.0, colour=[10,10,200])
+                lcdTriggered = True
+
+            if distance < distanceTreshold0:
+                lcd.newMessage(sentences_distance[rd.randint(0,len(sentences_distance0)-1)], duration=2.0, colour=[10,200,10])
+                lcdTriggered = True
+            elif distance < distanceTreshold1:
+                lcd.newMessage(sentences_distance[rd.randint(0,len(sentences_distance1)-1)], duration=2.0, colour=[10,200,10])
+                lcdTriggered = True
+
+
+            if lcdTriggered:
+                lcdTriggered = False
+                grovepi.analogWrite(Devices['led_red'],1000)
+                grovepi.analogWrite(Devices['led_green'],1000)
+
+                lcd.processfunction()        
+                resetLEDs()  
+                
+    except (KeyboardInterrupt, SystemExit):
+        resetLEDs()
+        lcd.reset()
+        break
             
-            lcd.processfunction()        
-            resetLEDs()    
 
 mainEvent()
 
@@ -266,7 +273,7 @@ lcd.dpText = ''
 lcd.updateText()
 
 
-# In[15]:
+# In[1]:
 
 import numpy as np
 import time
@@ -275,34 +282,39 @@ cycle = 1.0 - 0.001307
 
 def prototype():    
     while True:
+        try:
         
-#         lcdTriggered = False
-        
-        # timebreak
-#         time.sleep(cycle)
-        timestamp = time.time()
-        
-        # reading from sensors and changing LEDS accordingly        
-        # -sound
-        sound = np.random.randint(1023)
-        
-        # -distance
-        distance = np.random.randint(520)
-        
-        # -humidity & temperature
-        [temp, hum] = [np.random.randint(80), np.random.randint(100)]
+    #         lcdTriggered = False
 
-        
-        
-        # write to CSV    
-        print("%f, %d, %d, %d, %d\r" % (timestamp,distance,hum,sound,temp))#, end='\r', flush=True)
-#         print('%d         ' % sound, end='\r', flush=True)
-        
-        # sync
-        time.sleep(cycle - ((time.time() - timestamp) % cycle))
+            # timebreak
+    #         time.sleep(cycle)
+            timestamp = time.time()
+
+            # reading from sensors and changing LEDS accordingly        
+            # -sound
+            sound = np.random.randint(1023)
+
+            # -distance
+            distance = np.random.randint(520)
+
+            # -humidity & temperature
+            [temp, hum] = [np.random.randint(80), np.random.randint(100)]
 
 
-# prototype()
+
+            # write to CSV    
+            print("%f, %d, %d, %d, %d\r" % (timestamp,distance,hum,sound,temp))#, end='\r', flush=True)
+    #         print('%d         ' % sound, end='\r', flush=True)
+
+            # sync
+            time.sleep(cycle - ((time.time() - timestamp) % cycle))
+
+        except (KeyboardInterrupt, SystemExit):
+            print('Invoke reset command here')
+            break
+
+
+prototype()
 
 
 # In[58]:
