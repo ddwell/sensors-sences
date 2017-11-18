@@ -166,6 +166,7 @@ messageDuration = 2.0
 lcd = LCD()
 resetLEDs()
 
+
 def mainEvent():
     frametime = spf
     lcdMessage_starttime = 0
@@ -198,8 +199,9 @@ def mainEvent():
 
 
                 # write to CSV                
-                print('%f, %f, %f, %f, %f       ' % (starttime,distance,hum,sound,temp), end='\r', flush=True)
-
+                print('%f, %f, %f, %f, %f       ' % (starttime,distance,sound,hum,temp), end='\r', flush=True)
+                
+                
                 # message on LCD ?
                 if not messageInProgress:
                     if sound > noiseTreshold:     
@@ -210,9 +212,10 @@ def mainEvent():
                         sentence = rd.randint(0,len(sentences_distance0)-1)
                         lcd.newMessage(sentences_distance0[sentence], duration=2.0, colour=[200,200,10])
                 
-#                     elif distance < distanceTreshold1:
-#                         sentence = rd.randint(0,len(sentences_distance1)-1)
-#                         lcd.newMessage(sentences_distance1[sentence], duration=2.0, colour=[10,200,10])
+                    elif distance < distanceTreshold1:
+                        sentence = rd.randint(0,len(sentences_distance1)-1)
+                        lcd.newMessage(sentences_distance1[sentence], duration=2.0, colour=[10,200,10])                
+                    
                 
                 if len(lcd.pendingMessages) > 0:   
                     
@@ -221,7 +224,10 @@ def mainEvent():
                         lcd.displayMessage() 
                         messageInProgress = True
                         
-                if lcdMessage_frametime >= messageDuration:                            
+                if lcdMessage_frametime >= messageDuration: 
+#                     stringForLCD = str(distance)+'cm,  '+str(sound)+'dB;   '+str(hum)+'%   '+str(temp)+'C'
+#                     lcd.updateTextVar(stringForLCD)
+#                     lcd.updateText()
                     lcd.endDisplayMessage()     
                     messageInProgress = False
             
@@ -236,4 +242,5 @@ def mainEvent():
             lcd.reset()
             break
 
+mainEvent()
 mainEvent()
