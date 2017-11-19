@@ -28,7 +28,7 @@ Devices = {
 }
 
 
-def soundControlsGreenLED(fps=30.0):    
+def soundControlsGreenLED(fps=24.0):    
     frametime = fps
     
     while True:
