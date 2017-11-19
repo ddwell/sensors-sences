@@ -61,7 +61,7 @@ class LCD:
             self.colour = colour
     
     def reset(self):
-        lcd.deletePendingMessages()
+        self.deletePendingMessages()
         drivers.grove_rgb_lcd.setRGB(0,0,0)
         drivers.grove_rgb_lcd.setText('')        
         
@@ -125,7 +125,7 @@ def mainEvent(fps = 10.0, lcd_fps = 0.5):
     messageDuration = 3.0
 
     lcd = LCD()
-    resetLEDs()
+#     resetLEDs()
 
     frametime = spf    
     lcdMain_frametime = lcdMain_spf
