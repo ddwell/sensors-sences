@@ -1,1 +1,7 @@
 readings.csv
+__pycache__/
+drivers/__pycache__/
+drivers/grove_oled.pyc
+drivers/grove_rgb_lcd.pyc
+grovepi.py
+grovepi.pyc
