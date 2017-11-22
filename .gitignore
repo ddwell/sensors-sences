@@ -5,3 +5,4 @@ drivers/grove_oled.pyc
 drivers/grove_rgb_lcd.pyc
 grovepi.py
 grovepi.pyc
+drivers/LCD.pyc
