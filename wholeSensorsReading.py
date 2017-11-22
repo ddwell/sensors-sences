@@ -103,12 +103,15 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, lcdMessages=True
     lcdMessage_frametime = 3.0   
     messageInProgress = False
     
+    readCooldown = 0.01
+    
     lcd = LCD()
     resetPINs()
     resetLEDs()    
     dst_prev, dst_next = 0, 0
     lt_prev, lt_next = 0, 0
     lcd.defaultColour()
+        
     
     outfilename = 'readings.csv'
     with open(outfilename, 'w') as csvfile:
@@ -117,18 +120,23 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, lcdMessages=True
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()        
         try:
-            print('date_and_time        dist   light  sound  hum    temp ')
+            print('date_and_time        dist   light  sound  hum    temp   gas  ')
             while True:                  
                 if frametime >= spf:
                     starttime = time.time()               
 
                     # reading from sensors analogWrite
                     try:
-                        sound = grovepi.analogRead(Devices['sound_sensor'])              
+                        time.sleep(readCooldown)
+                        sound = grovepi.analogRead(Devices['sound_sensor']) 
+                        grovepi.ledBar_setLevel(Devices['ledbar'],int(sound/102.3))
+                        time.sleep(readCooldown)
                         light = grovepi.analogRead(Devices['photoresistor'])
+                        time.sleep(readCooldown)
                         distance = grovepi.ultrasonicRead(Devices['ultrasonic_ranger'])
-                        [temp, hum] = grovepi.dht(Devices['dht_sensor'], 0)                            
-                        # Calculate gas density - large value means more dense gas
+                        time.sleep(readCooldown)
+                        [temp, hum] = grovepi.dht(Devices['dht_sensor'], 0) 
+                        time.sleep(readCooldown)
                         gas = (float)(grovepi.analogRead(Devices['gas_sensor']) / 1024)                         
                     except TypeError:
                         distance,light,sound,hum,temp,gas = -1,-1,-1,-1,-1,-1
@@ -141,12 +149,10 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, lcdMessages=True
                     #grovepi.analogWrite(Devices['led_green'],255-int(light/4))
                     grovepi.ledBar_setLevel(Devices['ledbar'],int(sound/102.3))
                     grovepi.analogWrite(Devices['led_green'],255-int(distance*255/1023))   #int(distance/4))
-
+                    
                     #---avoiding excessive write to LEDs                
                     dst_next = rectify(distance, distanceTreshold0)                
-                    if dst_prev != dst_next:
-                        
-                        time.sleep(0.3)
+                    if dst_prev != dst_next:  
                         grovepi.digitalWrite(Devices['led_red'],dst_next)
                         dst_prev = dst_next     
                     
@@ -217,6 +223,5 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, lcdMessages=True
     print("maximum fps possible: %5.10f ms" % (1/aipt))
     if fps > 1/aipt:
         print("warning: frame skipping")
-           
            
 mainEvent(fps=1.0, lcdMessages=False, exitOnReadError=True)
