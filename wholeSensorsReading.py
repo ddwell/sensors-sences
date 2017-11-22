@@ -218,4 +218,5 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, lcdMessages=True
     if fps > 1/aipt:
         print("warning: frame skipping")
            
+           
 mainEvent(fps=1.0, lcdMessages=False, exitOnReadError=True)
