@@ -1,4 +1,4 @@
-readings.csv
+readings/
 __pycache__/
 drivers/__pycache__/
 drivers/grove_oled.pyc

@@ -10,7 +10,7 @@ from drivers.LCD import *
 # import drivers.grove_oled as grove_oled #import *
 
 # Auxilary packages
-import time, math, csv
+import time, math, csv, os
 import random as rd
 import numpy as np
 
@@ -92,7 +92,7 @@ def rectify(param,paramTreshold):
         return 0 
 
 
-def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, lcdMessages=True, exitOnReadError=False):       
+def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0.01, lcdMessages=True, exitOnReadError=False):       
     
     spf = 1 / fps
     lcdMain_spf = 1 / lcd_fps  
@@ -101,9 +101,7 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, lcdMessages=True
     lcdMain_starttime = time.time()        
     lcdMessage_starttime = 3.0
     lcdMessage_frametime = 3.0   
-    messageInProgress = False
-    
-    readCooldown = 0.01
+    messageInProgress = False   
     
     lcd = LCD()
     resetPINs()
@@ -113,9 +111,9 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, lcdMessages=True
     lcd.defaultColour()
         
     
-    outfilename = 'readings.csv'
+    outfilename = os.path.join('readings',time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '.csv')
     with open(outfilename, 'w') as csvfile:
-        print("writing to <%s>" % outfilename)
+        print("file <%s> open" % outfilename)
         fieldnames = ['starttime','distance','light','sound','hum','temp','gas']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()        
@@ -137,7 +135,8 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, lcdMessages=True
                         time.sleep(readCooldown)
                         [temp, hum] = grovepi.dht(Devices['dht_sensor'], 0) 
                         time.sleep(readCooldown)
-                        gas = (float)(grovepi.analogRead(Devices['gas_sensor']) / 1024)                         
+                        gas = (float)(grovepi.analogRead(Devices['gas_sensor']) / 1023)      
+                        time.sleep(readCooldown)
                     except TypeError:
                         distance,light,sound,hum,temp,gas = -1,-1,-1,-1,-1,-1
                         if exitOnReadError:
@@ -215,13 +214,14 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, lcdMessages=True
             resetLEDs()      
             grovepi.ledBar_setBits(Devices['ledbar'], 0)
             lcd.reset()
-            print("\nprocess interrupted")            
+            t = 
+            print("\nprocess interrupted %s" % time.strftime('%Y-%m-%d %H:%M:%S', time.time()))            
             
-    print("<%s> closed" % outfilename)    
+    print("file <%s> closed" % outfilename)    
     aipt = np.mean(computationalSpeed)
     print("\n\naverage iteration processing time: %5.10f ms" % aipt)
     print("maximum fps possible: %5.10f ms" % (1/aipt))
     if fps > 1/aipt:
         print("warning: frame skipping")
            
-mainEvent(fps=1.0, lcdMessages=False, exitOnReadError=True)
+mainEvent(fps=1.0, lcdMessages=False, exitOnReadError=True, readCooldown = 0.05)
