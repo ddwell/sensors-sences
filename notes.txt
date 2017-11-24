@@ -1,0 +1,12 @@
+# Pin 14 is A0 Port.
+
+
+
+# NOTE: If you get a version of 255.255.255, they try running the script again, if the issue still persists then you are using an old deprecated firmware
+import grovepi
+try:
+    print("GrovePi has firmware version: %s" %grovepi.version())
+
+
+
+grovepi_i2c.py
