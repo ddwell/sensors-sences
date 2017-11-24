@@ -214,8 +214,7 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0
             resetLEDs()      
             grovepi.ledBar_setBits(Devices['ledbar'], 0)
             lcd.reset()
-            t = 
-            print("\nprocess interrupted %s" % time.strftime('%Y-%m-%d %H:%M:%S', time.time()))            
+            print("\nprocess interrupted %s" % time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))            
             
     print("file <%s> closed" % outfilename)    
     aipt = np.mean(computationalSpeed)
