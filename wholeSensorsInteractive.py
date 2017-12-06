@@ -92,7 +92,7 @@ def rectify(param,paramTreshold):
         return 0 
 
 
-def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0.01, lcdMessages=True, interactive = False, exitOnReadError=False):       
+def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0.01, lcdMessages=True, exitOnReadError=False):       
     
     spf = 1 / fps
     lcdMain_spf = 1 / lcd_fps  
@@ -140,10 +140,30 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0
                     except TypeError:
                         distance,light,sound,hum,temp,gas = -1,-1,-1,-1,-1,-1
                         if exitOnReadError:
-                            raise SystemExit()                   
+                            raise SystemExit()
+
+
+                    #LED reaction
+#                     grovepi.analogWrite(Devices['led_green'],int(sound/4))
+                    #grovepi.analogWrite(Devices['led_green'],255-int(light/4))
+                    grovepi.ledBar_setLevel(Devices['ledbar'],int(sound/102.3))
+                    grovepi.analogWrite(Devices['led_green'],255-int(distance*255/1023))   #int(distance/4))
+                    
+                    #---avoiding excessive write to LEDs                
+                    dst_next = rectify(distance, distanceTreshold0)                
+                    if dst_prev != dst_next:  
+                        grovepi.digitalWrite(Devices['led_red'],dst_next)
+                        dst_prev = dst_next     
+                    
+                    
+                    lt_next = rectify(light,lightTreshold)
+                    if lt_prev != lt_next:
+                        grovepi.digitalWrite(Devices['led_yellow'],lt_next)
+                        lt_prev = lt_next
 
                     # write to CSV                
                     t = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(starttime))
+                    print('%s, %dcm, %dlum,%ddB, %3.1f%%, %3.1fC, %3.3f              ' % (t,distance,light,sound,hum,temp,gas), end='\r')
                     writer.writerow({'starttime':starttime,'distance':distance,'light':light,'sound':sound,'hum':hum,'temp':temp,'gas':gas})
                     
                     # message on LCD ?
@@ -179,32 +199,8 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0
                             stringForLCD = 'lumi temp  humid%4d%5.1fC%5.1f%%' % (light, temp, hum)
                             lcd.updateTextVar(stringForLCD)
                             lcd.updateText()
-                    
-                    if interactive:
-                        #LED reaction
-    #                     grovepi.analogWrite(Devices['led_green'],int(sound/4))
-                        #grovepi.analogWrite(Devices['led_green'],255-int(light/4))
-                        grovepi.ledBar_setLevel(Devices['ledbar'],int(sound/102.3))
-                        grovepi.analogWrite(Devices['led_green'],255-int(distance*255/1023))   #int(distance/4))
-                        
-                        #---avoiding excessive write to LEDs                
-                        dst_next = rectify(distance, distanceTreshold0)                
-                        if dst_prev != dst_next:  
-                            grovepi.digitalWrite(Devices['led_red'],dst_next)
-                            dst_prev = dst_next     
-                        
-                        
-                        lt_next = rectify(light,lightTreshold)
-                        if lt_prev != lt_next:
-                            grovepi.digitalWrite(Devices['led_yellow'],lt_next)
-                            lt_prev = lt_next
-                    
+
                     computationalSpeed.append(time.time()-starttime)
-                    if time.time()-starttime > fps:
-                        print('\nwarning: frame skipping')
-                    print('%s, %dcm' % (t,distance) )  
-                    #print('%s, %dcm, %dlum,%ddB, %3.1f%%, %3.1fC, %3.3f   ' % (t,distance,light,sound,hum,temp,gas), end='\r')
-                    
     #             else:
     #                 if grovepi.analogRead(Devices['sound_sensor']) > noiseTreshold:     
     #                     sentence = rd.randint(0,len(sentences_sound)-1)
@@ -224,5 +220,7 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0
     aipt = np.mean(computationalSpeed)
     print("\n\naverage iteration processing time: %5.10f ms" % aipt)
     print("maximum fps possible: %5.10f ms" % (1/aipt))
+    if fps > 1/aipt:
+        print("warning: frame skipping")
            
-mainEvent(fps=0.5, exitOnReadError=True, readCooldown = 0.001, interactive = False, lcdMessages=False)
+mainEvent(fps=1.0, lcdMessages=False, exitOnReadError=True, readCooldown = 0.05)
