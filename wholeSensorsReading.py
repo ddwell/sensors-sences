@@ -92,7 +92,7 @@ def rectify(param,paramTreshold):
         return 0 
 
 
-def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0.01, lcdMessages=True, interactive = False, exitOnReadError=False):       
+def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0.01, lcdMessages=True, interactive = True, exitOnReadError=False):       
     
     spf = 1 / fps
     lcdMain_spf = 1 / lcd_fps  
@@ -126,8 +126,7 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0
                     # reading from sensors analogWrite
                     try:
                         time.sleep(readCooldown)
-                        sound = grovepi.analogRead(Devices['sound_sensor']) 
-                        grovepi.ledBar_setLevel(Devices['ledbar'],int(sound/102.3))
+                        sound = grovepi.analogRead(Devices['sound_sensor'])                        
                         time.sleep(readCooldown)
                         light = grovepi.analogRead(Devices['photoresistor'])
                         time.sleep(readCooldown)
@@ -181,6 +180,8 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0
                             lcd.updateText()
                     
                     if interactive:
+                        #if interactive:
+                        #    grovepi.ledBar_setLevel(Devices['ledbar'],int(sound/102.3))
                         #LED reaction
     #                     grovepi.analogWrite(Devices['led_green'],int(sound/4))
                         #grovepi.analogWrite(Devices['led_green'],255-int(light/4))
@@ -202,7 +203,7 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0
                     computationalSpeed.append(time.time()-starttime)
                     if time.time()-starttime > fps:
                         print('\nwarning: frame skipping')
-                    print('%s, %dcm' % (t,distance) )  
+                    print('%s, %dcm, %dlum,%ddB' % (t,distance,light,sound) )  
                     #print('%s, %dcm, %dlum,%ddB, %3.1f%%, %3.1fC, %3.3f   ' % (t,distance,light,sound,hum,temp,gas), end='\r')
                     
     #             else:
@@ -225,4 +226,4 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0
     print("\n\naverage iteration processing time: %5.10f ms" % aipt)
     print("maximum fps possible: %5.10f ms" % (1/aipt))
            
-mainEvent(fps=0.5, exitOnReadError=True, readCooldown = 0.001, interactive = False, lcdMessages=False)
+mainEvent(fps=0.5, exitOnReadError=True, readCooldown = 0.005, interactive = False, lcdMessages=False)
