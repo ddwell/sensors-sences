@@ -143,7 +143,8 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0
 
                     # write to CSV                
                     t = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(starttime))
-                    writer.writerow({'starttime':starttime,'distance':distance,'light':light,'sound':sound,'hum':hum,'temp':temp,'gas':gas})
+                    if not interactive:
+                        writer.writerow({'starttime':starttime,'distance':distance,'light':light,'sound':sound,'hum':hum,'temp':temp,'gas':gas})
                     
                     # message on LCD ?
                     if lcdMessages:
@@ -226,4 +227,4 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0
     print("\n\naverage iteration processing time: %5.10f ms" % aipt)
     print("maximum fps possible: %5.10f ms" % (1/aipt))
            
-mainEvent(fps=0.5, exitOnReadError=True, readCooldown = 0.005, interactive = True, lcdMessages=True)
+mainEvent(fps=1.0, exitOnReadError=True, readCooldown = 0.005, interactive = True, lcdMessages=True)
