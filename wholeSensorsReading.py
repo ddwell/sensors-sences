@@ -126,7 +126,9 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0
                     # reading from sensors analogWrite
                     try:
                         time.sleep(readCooldown)
-                        sound = grovepi.analogRead(Devices['sound_sensor'])                        
+                        sound = grovepi.analogRead(Devices['sound_sensor'])    
+			if not type(sound) is int:
+			    sound = 0	                     
                         time.sleep(readCooldown)
                         light = grovepi.analogRead(Devices['photoresistor'])
                         time.sleep(readCooldown)

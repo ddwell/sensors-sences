@@ -391,9 +391,9 @@ class RepeatedTimer(object):
 print("starting...")
 rt = RepeatedTimer(7, prototype) # it auto-starts, no need of rt.start()
 
-https://stackoverflow.com/questions/474528/what-is-the-best-way-to-repeatedly-execute-a-function-every-x-seconds-in-python
+# https://stackoverflow.com/questions/474528/what-is-the-best-way-to-repeatedly-execute-a-function-every-x-seconds-in-python
 
-#Just lock your time loop to the system clock. Easy.
+# Just lock your time loop to the system clock. Easy.
 
 import time
 starttime=time.time()
@@ -401,7 +401,7 @@ while True:
   print "tick"
   time.sleep(60.0 - ((time.time() - starttime) % 60.0))
   
-#Use the sched module, which implements a general purpose event scheduler.
+# Use the sched module, which implements a general purpose event scheduler.
 
 import sched, time
 s = sched.scheduler(time.time, time.sleep)
