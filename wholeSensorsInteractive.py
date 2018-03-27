@@ -217,7 +217,7 @@ def mainEvent(fps = 1.0, lcd_fps = 0.25, messageDuration = 3.0, readCooldown = 0
                 frametime = time.time() - starttime
                 lcdMain_frametime = time.time() - lcdMain_starttime
                 lcdMessage_frametime = time.time() - lcdMessage_starttime
-        except (KeyboardInterrupt, SystemExit):
+        except:# (KeyboardInterrupt, SystemExit):
             resetLEDs()      
             grovepi.ledBar_setBits(Devices['ledbar'], 0)
             lcd.reset()
